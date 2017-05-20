@@ -1,0 +1,198 @@
+Grammar
+
+    0 $accept: line $end
+
+    1 line: '\n'
+    2     | openArray closeArray
+    3     | openArray term closeArray
+    4     | openArray exp
+    5     | exit_command
+
+    6 exp: term ',' exp
+    7    | ',' term closeArray
+
+    8 term: number
+    9     | negative term
+
+
+Terminals, with rules where they appear
+
+$end (0) 0
+'\n' (10) 1
+',' (44) 6 7
+error (256)
+number (258) 8
+openArray (259) 2 3 4
+exit_command (260) 5
+closeArray (261) 2 3 7
+negative (262) 9
+
+
+Nonterminals, with rules where they appear
+
+$accept (10)
+    on left: 0
+line (11)
+    on left: 1 2 3 4 5, on right: 0
+exp (12)
+    on left: 6 7, on right: 4 6
+term (13)
+    on left: 8 9, on right: 3 6 7 9
+
+
+State 0
+
+    0 $accept: . line $end
+
+    openArray     shift, and go to state 1
+    exit_command  shift, and go to state 2
+    '\n'          shift, and go to state 3
+
+    line  go to state 4
+
+
+State 1
+
+    2 line: openArray . closeArray
+    3     | openArray . term closeArray
+    4     | openArray . exp
+
+    number      shift, and go to state 5
+    closeArray  shift, and go to state 6
+    negative    shift, and go to state 7
+    ','         shift, and go to state 8
+
+    exp   go to state 9
+    term  go to state 10
+
+
+State 2
+
+    5 line: exit_command .
+
+    $default  reduce using rule 5 (line)
+
+
+State 3
+
+    1 line: '\n' .
+
+    $default  reduce using rule 1 (line)
+
+
+State 4
+
+    0 $accept: line . $end
+
+    $end  shift, and go to state 11
+
+
+State 5
+
+    8 term: number .
+
+    $default  reduce using rule 8 (term)
+
+
+State 6
+
+    2 line: openArray closeArray .
+
+    $default  reduce using rule 2 (line)
+
+
+State 7
+
+    9 term: negative . term
+
+    number    shift, and go to state 5
+    negative  shift, and go to state 7
+
+    term  go to state 12
+
+
+State 8
+
+    7 exp: ',' . term closeArray
+
+    number    shift, and go to state 5
+    negative  shift, and go to state 7
+
+    term  go to state 13
+
+
+State 9
+
+    4 line: openArray exp .
+
+    $default  reduce using rule 4 (line)
+
+
+State 10
+
+    3 line: openArray term . closeArray
+    6 exp: term . ',' exp
+
+    closeArray  shift, and go to state 14
+    ','         shift, and go to state 15
+
+
+State 11
+
+    0 $accept: line $end .
+
+    $default  accept
+
+
+State 12
+
+    9 term: negative term .
+
+    $default  reduce using rule 9 (term)
+
+
+State 13
+
+    7 exp: ',' term . closeArray
+
+    closeArray  shift, and go to state 16
+
+
+State 14
+
+    3 line: openArray term closeArray .
+
+    $default  reduce using rule 3 (line)
+
+
+State 15
+
+    6 exp: term ',' . exp
+
+    number    shift, and go to state 5
+    negative  shift, and go to state 7
+    ','       shift, and go to state 8
+
+    exp   go to state 17
+    term  go to state 18
+
+
+State 16
+
+    7 exp: ',' term closeArray .
+
+    $default  reduce using rule 7 (exp)
+
+
+State 17
+
+    6 exp: term ',' exp .
+
+    $default  reduce using rule 6 (exp)
+
+
+State 18
+
+    6 exp: term . ',' exp
+
+    ','  shift, and go to state 15

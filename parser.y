@@ -1,8 +1,10 @@
 %{
 	#include "lex.yy.c"
-	#include <stdio.h>     /* C declarations used in actions */
+	#include <stdio.h> 
 	#include <stdlib.h>
-	void yyerror(char *s);
+	int yyerror(char *s);
+	int yywrap();
+	int yylex();
 	int sum = 0;
 	void add(int);
 %}
@@ -13,38 +15,46 @@
 	char id;
 }
 
-%token number
-%token openArray
+%token<num> number
+%token<id> openArray
 %token exit_command
-%token closeArray
-%type <id> line
+%token<id> closeArray
 
-%type <num> exp term
+%type<id> line
+%type<num> exp term
 
 %start line
 
 %%
 
-line :  openArray closeArray {printf("%d", 0);}
-	| openArray term closeArray {printf("%d", $2);}
+line :  '\n' {;}
+	|openArray closeArray {/*printf("%d\n", 0);*/;}
+	| openArray term closeArray {/*printf("%d\n", $2);*/;}
 	| openArray exp {;}
 	| exit_command {exit(EXIT_SUCCESS);}
 	;
 exp : term ',' exp {;}
-	|',' term closeArray {printf("%d\n", sum);}
+	|',' term closeArray {/*printf("%d\n", sum);*/;}
 	;
 term: number {add($$);};
 
 %%
 
 void add(int n){
+	
 	sum = sum + n;
-	//printf("Sum is: %d", sum);
-}
-void yyerror(char *s){
-	fprintf (stderr, "%s\n", s);
+	printf("%d %d\n", n, sum);
+	
 }
 
-int main(){
-	return yyparse( );
+int main(void){
+	yyparse();
 }
+
+int yywrap(){return 1;}
+
+int yyerror(char *s){
+	printf("%s\n", s);
+	return 0;
+}
+
